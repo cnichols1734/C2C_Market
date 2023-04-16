@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <h1 class="text-center">BDMB Marketplace</h1>
+    <div class="search-bar">
+    <form class="form-inline" action="{{ url_for('index') }}" method="get">
+        <input class="form-control" type="search" name="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+</div>
+
+<div class="category-filter">
+    <a href="{{ url_for('index') }}" class="btn btn-outline-primary category-btn">All</a>
+    {% set categories = ['Guns', 'Hunting & Fishing', 'Misc'] %}
+    {% for category in categories %}
+        <a href="{{ url_for('index', category=category) }}" class="btn btn-outline-primary category-btn">{{ category }}</a>
+    {% endfor %}
+</div>
+
+
+<div class="post-list">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                {% if post.photo %}
+                <td><a href="{{ url_for('post', post_id=post.id) }}"><img src="{{ url_for('static', filename='uploads/' + post.photo) }}" alt="Post image" class="post-img"></a></td>
+                {% else %}
+                <td>No image available</td>
+                {% endif %}
+                <td><a href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></td>
+                <td>${{ '%.2f' % post.price }}</td>
+                <td>{{ post.category }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+{% endblock %}

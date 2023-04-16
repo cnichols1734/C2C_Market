@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Create Post</h1>
+    <form action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="price">Price:</label>
+            <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <select class="form-control" id="category" name="category" required>
+                <option value="Guns">Guns</option>
+                <option value="Hunting & Fishing">Hunting & Fishing</option>
+                <option value="Misc">Misc</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="photo">Photo:</label>
+            <input type="file" class="form-control-file" id="photo" name="photo" accept="image/*" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% endblock %}
