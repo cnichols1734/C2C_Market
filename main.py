@@ -6,9 +6,14 @@ import uuid
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SECRET_KEY'] = 'your_secret_key'  # Add a secret key for the session
+app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 db = SQLAlchemy(app)
+
+class Photo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,14 +21,16 @@ class Post(db.Model):
     description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(20), nullable=False)
-    photo = db.Column(db.String(255))
-    comments = db.relationship('Comment', backref='post', lazy=True)
-    uuid = db.Column(db.String(36), nullable=False)  # Add a column to store the user's UUID
+    photos = db.relationship('Photo', backref='post', lazy=True)
+    comments = db.relationship('Comment', back_populates='post', cascade='all, delete')
+    uuid = db.Column(db.String(36), nullable=False)
+
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    post = db.relationship('Post', back_populates='comments')  # Add this line
 
 @app.route('/')
 def index():
@@ -54,26 +61,34 @@ def create_post():
     if request.method == 'POST':
         user_uuid = session.get('uuid')
         if not user_uuid:
-            user_uuid = str(uuid.uuid4())  # Generate a new UUID if not found in the session
+            user_uuid = str(uuid.uuid4())
             session['uuid'] = user_uuid
 
         title = request.form['title']
         description = request.form['description']
         price = request.form['price']
         category = request.form['category']
-        photo = request.files['photo']
 
-        filename = None
-        if photo:
-            filename = secure_filename(photo.filename)
-            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filenames = []
+        for i in range(1, 5):
+            photo = request.files.get(f'photo{i}')
+            if photo and photo.filename:
+                filename = secure_filename(photo.filename)
+                photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                filenames.append(filename)
 
-        if filename is None:
-            print("Error: filename is None")
+        if not filenames:
+            print("Error: no photos uploaded")
             return redirect(url_for('create_post'))
 
-        new_post = Post(title=title, description=description, price=price, category=category, photo=filename, uuid=user_uuid)
+        new_post = Post(title=title, description=description, price=price, category=category, uuid=user_uuid)
         db.session.add(new_post)
+        db.session.flush()
+
+        for filename in filenames:
+            new_photo = Photo(filename=filename, post_id=new_post.id)
+            db.session.add(new_photo)
+
         db.session.commit()
         return redirect(url_for('index'))
 
@@ -86,11 +101,14 @@ def delete_post(post_id):
         flash('You are not authorized to delete this post.', 'error')
         return redirect(url_for('post', post_id=post.id))
     else:
+        for photo in post.photos:
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], photo.filename))
+            db.session.delete(photo)
+
         db.session.delete(post)
         db.session.commit()
         flash('Your post has been deleted.', 'success')
         return redirect(url_for('index'))
-
 
 
 if __name__ == '__main__':

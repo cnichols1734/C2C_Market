@@ -31,19 +31,19 @@
             </tr>
         </thead>
         <tbody>
-            {% for post in posts %}
-            <tr>
-                {% if post.photo %}
-                <td><a href="{{ url_for('post', post_id=post.id) }}"><img src="{{ url_for('static', filename='uploads/' + post.photo) }}" alt="Post image" class="post-img"></a></td>
-                {% else %}
-                <td>No image available</td>
-                {% endif %}
-                <td><a href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></td>
-                <td>${{ '%.2f' % post.price }}</td>
-                <td>{{ post.category }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+    {% for post in posts %}
+    <tr>
+        {% if post.photos[0] %}
+        <td><a href="{{ url_for('post', post_id=post.id) }}"><img src="{{ url_for('static', filename='uploads/' + post.photos[0].filename) }}" alt="Post image" class="post-img"></a></td>
+        {% else %}
+        <td>No image available</td>
+        {% endif %}
+        <td><a href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></td>
+        <td>${{ '%.2f' % post.price }}</td>
+        <td>{{ post.category }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
     </table>
 </div>
 </div>

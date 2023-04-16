@@ -4,9 +4,9 @@
 <h1>{{ post.title }}</h1>
 <p>{{ post.description }}</p>
 <p>Price: {{ post.price }}</p>
-<a href="{{ url_for('static', filename='uploads/' + post.photo) }}" target="_blank">
-    <img src="{{ url_for('static', filename='uploads/' + post.photo) }}" alt="Photo" width="300">
-</a>
+{% for photo in post.photos %}
+    <a href="{{ url_for('static', filename='uploads/' + photo.filename) }}" target="_blank"><img src="{{ url_for('static', filename='uploads/' + photo.filename) }}" alt="Photo" width="300"></a>
+{% endfor %}
 
 {% if session.uuid == post.uuid %}
     <form action="{{ url_for('delete_post', post_id=post.id) }}" method="post">
