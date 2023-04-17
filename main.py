@@ -7,7 +7,7 @@ import uuid
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['UPLOAD_FOLDER'] = 'mysite/static/uploads'
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 db = SQLAlchemy(app)
 
 class Photo(db.Model):

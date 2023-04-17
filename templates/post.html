@@ -3,7 +3,7 @@
 {% block content %}
 <h1>{{ post.title }}</h1>
 <p>{{ post.description }}</p>
-<p>Price: {{ post.price }}</p>
+<p><strong>Price:</strong> ${{ "%.2f"|format(post.price) }}</p>
 {% for photo in post.photos %}
     <a href="{{ url_for('static', filename='uploads/' + photo.filename) }}" target="_blank"><img src="{{ url_for('static', filename='uploads/' + photo.filename) }}" alt="Photo" width="300"></a>
 {% endfor %}
